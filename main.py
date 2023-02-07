@@ -66,3 +66,6 @@ elif (log < count):
         server.login(sender, password)
         server.sendmail(sender, receiver, msg.as_string())
         print('Sent mail! See you tomorrow!')
+
+# Seperator for Docker logs
+print('===============')
