@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 import smtplib, ssl
@@ -5,15 +6,18 @@ from email.utils import formatdate
 from email.mime.text import MIMEText
 
 
-url = '' # Ex: https://dolap.com/ara?q=Guitar+Hero
+url = 'https://dolap.com/ara?q=Guitar+Hero'
 headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'}
 
-smtp_server = "" # Ex: mail.example.com
+smtp_server = "mail.sal.web.tr" # Ex: mail.example.com
 port = 587  # For TLS (STARTTLS)
-sender = '' # Ex: alper@example.com
-receiver = '' # Ex: alper@example.com
-password = ''
+sender = 'alper@sal.web.tr' # Ex: alper@example.com
+receiver = 'alper@sal.web.tr' # Ex: alper@example.com
+password = 'nDj89^Naq^f6@j7vV%iA%6BVKycX#YKe'
 context = ssl.create_default_context()
+
+# Print date-time
+print(datetime.now())
 
 # Get HTML
 html = requests.get(url, headers=headers).text
