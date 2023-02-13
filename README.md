@@ -7,8 +7,10 @@
 - Dockerfile bulundurur.
 - Sürekli çalışması gerekmez.
 - Mail gönderir.
+- Birden fazla arama yapabilir.
 - Mesajlar ve yorumlar İngilizcedir.
 - Kısa süreli ve kişisel bir kullanım için geliştirdiğim için herhangi bir 'error handling' yazmadım. Bir sıkıntı olursa kendiniz tespit etmeniz gerekecek. (Mail gönderilmez ya da listeleme sayısı okunamaz ise.)
+- Birden fazla arama yapma özelliğini sonradan ekledim ve kesinlikle 'düzgün' bir şekilde entegre etmedim. Çalışmasında bir sorun yok ancak tek seferde ikiden fazla arama yapmak isterseniz kodun ne yaptığını anlamanız ve ekleme yapmanız gerekecek. İleride boş zamanım olduğunda düzelteceğim.
 
 ## Gereksinimler
 - Python
