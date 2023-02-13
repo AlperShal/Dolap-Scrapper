@@ -1,0 +1,6 @@
+services:
+  dolap-scrapper:
+    image: dolap-scrapper:latest
+    container_name: dolap-scrapper
+    volumes:
+      - ./:/usr/src/app
