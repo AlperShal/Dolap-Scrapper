@@ -28,16 +28,7 @@ Opsiyonel:
 - `main.py`'deki ilgili değişkenleri doldurun (Mail bilgileri, Dolap linki vs.) ve sunucunuza yükleyin.
 - Dosyaların olduğu dizinde `docker build -t dolap-scrapper .` komutu ile konteyneri oluşturun.
 - `docker run -it --rm --name py dolap-scrapper:latest` komutuyla kodun çalışıp çalışmadığını kontrol edin.
-- Docker Compose kullanarak konteynerdeki güncellenen dosyaların ana makineye de kayıt edilmesini sağlayın (Volume Bind) (Sunucunuzda dosyaların olduğu konumu yml'de düzenlemeyi unutmayın.):
-```
-services:
-  dolap-scrapper:
-    image: dolap-scrapper:latest
-    container_name: dolap-scrapper
-    volumes:
-      - /path/to/Dolap-Scrapper:/usr/src/app
-```
--  Aradığınız şeyin ne kadar nadir ve hızlı satın alındığına göre sıklığını ayarlayarak cronjob ile kodu çalıştırın: `docker compose up -d dolap-scrapper`
+-  Aradığınız şeyin ne kadar nadir ve hızlı satın alındığına göre sıklığını ayarlayarak cronjob ile kodu çalıştırın: `docker compose -f '/path/to/Dolap Scrapper/docker-compose.yml' up -d`
 
 ## Sorun ve Sorular İçin
 [GitHub Issues](https://github.com/AlperShal/Dolap-Scrapper/issues)
