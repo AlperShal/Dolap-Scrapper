@@ -1,13 +1,14 @@
 from datetime import datetime
+import json
 import requests
 from bs4 import BeautifulSoup
 import smtplib, ssl
 from email.utils import formatdate
 from email.mime.text import MIMEText
 
+search_list = ['Guitar Hero', 'Rockband'] # Ex: ['Guitar Hero', 'Band Hero']
+log_file = 'count_log.json'
 
-url = '' # Ex: https://dolap.com/ara?q=Guitar+Hero
-url2 = '' # You can leave this empty
 headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'}
 
 smtp_server = "" # Ex: mail.example.com
@@ -18,14 +19,31 @@ password = ''
 context = ssl.create_default_context()
 
 
-def get_search_str(url):
-    after_q = url.split('q=')[1]
-    words = after_q.split('+')
-    search_str = ''
-    for i in words:
-        search_str = search_str + i + ' '
-    search_str = search_str.removesuffix(' ')
-    return search_str
+def append_new_to_log():
+    print('Checking for new search strings.')
+    db = {}
+    isEdited = 0
+    with open(log_file, 'r') as file:
+        file_read = file.read()
+        db = json.loads(file_read)
+        for i in search_list:
+            if i not in db:
+                db[i] = 0
+                isEdited = 1
+    if isEdited:
+        print('New search string(s) found. Adding them to log.')
+        with open(log_file, 'w') as file:
+            json_out = json.dump(db, file, indent=4)
+    else:
+        print('New search string(s) not found.')
+    print('---------------')
+
+def get_search_url(search_str):
+    base = 'https://dolap.com/ara?q='
+    for i in search_str.split(' '):
+        base = base + i + '+'
+    base = base.removesuffix('+')
+    return base
 
 def get_listing_count(url):
     # Get HTML
@@ -44,7 +62,7 @@ def get_listing_count(url):
     count = int(count_element_text.split()[0])
     return count
 
-def compare_and_mail(log_file, new_value, url, search_str):
+def compare_and_mail(new_value, url, search_str):
     # Print what is being searched for
     print(f'Session: {search_str}')
 
@@ -52,8 +70,10 @@ def compare_and_mail(log_file, new_value, url, search_str):
     print(f'Dolap: {count}')
 
     # Get Logged Value (From Previous Session)
-    with open(f'{log_file}', 'r') as count_log:
-        log = int(count_log.read())
+    with open(log_file, 'r') as file:
+        file_read = file.read()
+        db = json.loads(file_read)
+        log = db[search_str]
         print(f'Log: {log}')
 
     # Check if count changed. If not, do nothing 
@@ -62,15 +82,23 @@ def compare_and_mail(log_file, new_value, url, search_str):
     # Check if count decreased. If so, log new value and do nothing.
     elif (log > new_value):
         print('Value decreased! Logging new value. No need for mail.')
-
-        with open(f'{log_file}', 'w') as count_log:
-            count_log.write(str(new_value))
+        with open(log_file, 'r') as file:
+            file_read = file.read()
+            db = json.loads(file_read)
+            db[search_str] = new_value
+        with open(log_file, 'w') as file:
+            json_out = json.dump(db, file, indent=4)
+        
         print('Value logged.')
     # Check if count increased. If so, log new value and send mail.
     elif (log < new_value):
         print('Value increased! Logging new value and sending mail.')
-        with open(f'{log_file}', 'w') as count_log:
-            count_log.write(str(new_value))
+        with open(log_file, 'r') as file:
+            file_read = file.read()
+            db = json.loads(file_read)
+            db[search_str] = new_value
+        with open(log_file, 'w') as file:
+            json_out = json.dump(db, file, indent=4)
 
         print('Value logged. Sending mail...')
         msg = MIMEText(f'Listing count increased from {log} to {new_value}. URL: {url}')
@@ -85,7 +113,7 @@ def compare_and_mail(log_file, new_value, url, search_str):
             server.ehlo()
             server.login(sender, password)
             server.sendmail(sender, receiver, msg.as_string())
-            print('Sent mail! See you tomorrow!')
+            print('Sent mail!')
     
     print('---------------')
 
@@ -94,21 +122,15 @@ def compare_and_mail(log_file, new_value, url, search_str):
 print(datetime.now())
 print('---------------')
 
-# Get listing count
-count = get_listing_count(url)
+# Check if new search strings added and log them to file.
+append_new_to_log()
 
-# Get search string
-search_str = get_search_str(url)
+for search_str in search_list:
+    # Get search url
+    url = get_search_url(search_str)
+    # Get listing count
+    count = get_listing_count(url)
+    # Compare with log and send mail if necessary
+    compare_and_mail(count, url, search_str)
 
-# Compare with log and send mail if necessary
-compare_and_mail('count_log.txt', count, url, search_str)
-
-# Check if there is another URL (url2) and if so apply same steps (You can multiply this block and change vars according to your needs)
-if url2 != '':
-    count = get_listing_count(url2)
-    search_str = get_search_str(url2)
-    compare_and_mail('count_log2.txt', count, url2, search_str)
-
-
-# Seperator for Docker logs
 print('===============')
